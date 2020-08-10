@@ -920,18 +920,15 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
         "Could not retrieve JNIEnv");
     return 0;
   }
-  jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
-  if (!klass) {
-    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-        "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
-    return 0;
-  }
-  if ((*env)->RegisterNatives (env, klass, native_methods,
-          G_N_ELEMENTS (native_methods))) {
-    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-        "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
-    return 0;
-  }
+  // jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
+  // if (klass) {
+  //   if ((*env)->RegisterNatives (env, klass, native_methods,
+  //           G_N_ELEMENTS (native_methods))) {
+  //     __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+  //         "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
+  //     return 0;
+  //   }
+  // }
 
   pthread_key_create (&current_jni_env, detach_current_thread);
 
