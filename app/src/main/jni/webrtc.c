@@ -81,6 +81,7 @@ typedef struct _WebRTC
 
 static pthread_key_t current_jni_env;
 static JavaVM *java_vm;
+static WebRTC *webrtc; 
 static jfieldID native_webrtc_field_id;
 
 static gboolean
@@ -717,7 +718,7 @@ get_jni_env (void)
 static void
 native_end_call (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
 
   if (!webrtc)
     return;
@@ -746,6 +747,7 @@ _unlock_mutex (GMutex * m)
 static gpointer
 _call_thread (WebRTC * webrtc)
 {
+  g_print("_call_thread entered.");
   GMainContext *context = NULL;
   JNIEnv *env = attach_current_thread();
 
@@ -765,32 +767,43 @@ _call_thread (WebRTC * webrtc)
   return NULL;
 }
 
-static void
+void
 native_call_other_party(JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  g_print("native_call_other_party entered"); 
 
   if (!webrtc)
+  {
+    g_print("webrtc is null.");
     return;
+  }
 
   if (webrtc->thread)
+  {
+    g_print("call already going, need to end."); 
     native_end_call (env, thiz);
+  }
 
   GST_INFO("calling other party");
+  g_print("calling other party...");
 
   webrtc->thread = g_thread_new("webrtc", (GThreadFunc) _call_thread, webrtc);
   g_mutex_lock (&webrtc->lock);
   while (!webrtc->loop)
     g_cond_wait (&webrtc->cond, &webrtc->lock);
   g_mutex_unlock (&webrtc->lock);
+
+  g_print("native_call_other_party exited");
 }
 
-static void
+void
 native_new (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = g_new0 (WebRTC, 1);
+  //WebRTC *webrtc = g_new0 (WebRTC, 1);
+  webrtc = g_new0(WebRTC, 1);
 
-  SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, webrtc);
+  //SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, webrtc);
   webrtc->java_webrtc = (*env)->NewGlobalRef (env, thiz);
 
   webrtc->signalling_server = g_strdup (DEFAULT_SIGNALLING_SERVER);
@@ -799,10 +812,10 @@ native_new (JNIEnv * env, jobject thiz)
   g_cond_init (&webrtc->cond);
 }
 
-static void
+void
 native_free (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
 
   if (!webrtc)
     return;
@@ -816,10 +829,11 @@ native_free (JNIEnv * env, jobject thiz)
   g_free (webrtc->peer_id);
   g_free (webrtc->signalling_server);
   g_free (webrtc);
-  SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, NULL);
+  //SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, NULL);
+  webrtc = NULL; 
 }
 
-static void
+void
 native_class_init (JNIEnv * env, jclass klass)
 {
   native_webrtc_field_id =
@@ -836,10 +850,10 @@ native_class_init (JNIEnv * env, jclass klass)
   //gst_debug_set_threshold_from_string ("gl*:7", FALSE);
 }
 
-static void
+void
 native_set_surface (JNIEnv * env, jobject thiz, jobject surface)
 {
-  WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   ANativeWindow *new_native_window;
 
   if (!webrtc)
@@ -858,9 +872,9 @@ native_set_surface (JNIEnv * env, jobject thiz, jobject surface)
     gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (webrtc->video_sink), (guintptr) new_native_window);
 }
 
-static void
+void
 native_set_signalling_server (JNIEnv * env, jobject thiz, jstring server) {
-  WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   const gchar *s;
 
   if (!webrtc)
@@ -873,9 +887,9 @@ native_set_signalling_server (JNIEnv * env, jobject thiz, jstring server) {
   (*env)->ReleaseStringUTFChars(env, server, s);
 }
 
-static void
+void
 native_set_call_id(JNIEnv * env, jobject thiz, jstring peer_id) {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   const gchar *s;
 
   if (!webrtc)
@@ -921,13 +935,16 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
     return 0;
   }
   // jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
-  // if (klass) {
-  //   if ((*env)->RegisterNatives (env, klass, native_methods,
-  //           G_N_ELEMENTS (native_methods))) {
-  //     __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-  //         "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
-  //     return 0;
-  //   }
+  // if (!klass) {
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+  //       "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
+  //   return 0;
+  // }
+  // if ((*env)->RegisterNatives (env, klass, native_methods,
+  //         G_N_ELEMENTS (native_methods))) {
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+  //       "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
+  //   return 0;
   // }
 
   pthread_key_create (&current_jni_env, detach_current_thread);

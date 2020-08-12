@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Contracts;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -6,11 +7,11 @@ namespace Xamarin
 {
     public partial class App : Application
     {
-        public App()
+        public App(IWebRTC webRTC)
         {
             InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new MainPage(webRTC);
         }
 
         protected override void OnStart()

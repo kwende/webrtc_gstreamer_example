@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin", "Xamarin\Xamarin.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GStreamerJarBinder", "GStreamerJarBinder\GStreamerJarBinder.csproj", "{511B1989-43A6-4D8B-B0E4-D3DCE1E86564}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRTCBinder", "..\WebRTCBinder\WebRTCBinder.csproj", "{EFE58B21-9360-4F2F-BF2F-30E012E15E2C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{511B1989-43A6-4D8B-B0E4-D3DCE1E86564}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{511B1989-43A6-4D8B-B0E4-D3DCE1E86564}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{511B1989-43A6-4D8B-B0E4-D3DCE1E86564}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFE58B21-9360-4F2F-BF2F-30E012E15E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE58B21-9360-4F2F-BF2F-30E012E15E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE58B21-9360-4F2F-BF2F-30E012E15E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE58B21-9360-4F2F-BF2F-30E012E15E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
