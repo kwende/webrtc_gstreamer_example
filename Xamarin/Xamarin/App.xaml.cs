@@ -7,11 +7,11 @@ namespace Xamarin
 {
     public partial class App : Application
     {
-        public App(IWebRTC webRTC)
+        public App(IWebRTC webRTC, string locale)
         {
             InitializeComponent();
 
-            MainPage = new MainPage(webRTC);
+            MainPage = new MainPage(webRTC, locale);
         }
 
         protected override void OnStart()

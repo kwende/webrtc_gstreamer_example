@@ -24,7 +24,7 @@
 #include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-
+#include <locale.h>
 #include <gst/video/videooverlay.h>
 
 /* helper library for webrtc things */
@@ -451,11 +451,21 @@ on_server_closed (SoupWebsocketConnection * conn G_GNUC_UNUSED,
   cleanup_and_quit_loop (webrtc, "Server connection closed", 0);
 }
 
+static void
+on_error_message(SoupWebsocketConnection *self,
+               GError                  *error,
+               gpointer                 user_data)
+{
+  g_print("on_error_message\n");
+}
+
 /* One mega message handler for our asynchronous calling mechanism */
 static void
 on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
                    GBytes * message, WebRTC * webrtc)
 {
+  g_print("on_server_message entered.");
+
   gsize size;
   gchar *text, *data;
 
@@ -616,6 +626,7 @@ on_server_connected (SoupSession * session, GAsyncResult * res,
 
   webrtc->ws_conn = soup_session_websocket_connect_finish (session, res, &error);
   if (error) {
+    g_print("Error! Danger! Danger!"); 
     cleanup_and_quit_loop (webrtc, error->message, SERVER_CONNECTION_ERROR);
     g_error_free (error);
     return;
@@ -628,6 +639,7 @@ on_server_connected (SoupSession * session, GAsyncResult * res,
 
   g_signal_connect (webrtc->ws_conn, "closed", G_CALLBACK (on_server_closed), webrtc);
   g_signal_connect (webrtc->ws_conn, "message", G_CALLBACK (on_server_message), webrtc);
+  g_signal_connect (webrtc->ws_conn, "error", G_CALLBACK (on_error_message), webrtc);
 
   /* Register with the server so it knows about us and can accept commands */
   register_with_server (webrtc);
@@ -659,7 +671,7 @@ connect_to_websocket_server_async (WebRTC * webrtc)
 
   message = soup_message_new (SOUP_METHOD_GET, webrtc->signalling_server);
 
-  g_print ("Connecting to server...\n");
+  g_print ("Connecting to server...for message at %d to signalling server %s\n", message, webrtc->signalling_server);
 
   /* Once connected, we will register */
   soup_session_websocket_connect_async (session, message, NULL, NULL, NULL,
@@ -747,7 +759,7 @@ _unlock_mutex (GMutex * m)
 static gpointer
 _call_thread (WebRTC * webrtc)
 {
-  g_print("_call_thread entered.");
+  g_print("GOOGLIEBAH: _call_thread entered.");
   GMainContext *context = NULL;
   JNIEnv *env = attach_current_thread();
 
@@ -924,8 +936,16 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
 {
   JNIEnv *env = NULL;
 
-      setenv("GST_DEBUG", "6", 1);
-    setenv("GST_DEBUG_NO_COLOR", "1", 1);
+  GST_DEBUG_CATEGORY_INIT (debug_category, "debug_category",
+                            0, "This is my very own");
+
+  //setlocale(LC_CTYPE, "en_US");
+  char* locale = setlocale(LC_CTYPE, NULL); 
+
+  char *text = g_convert("Hello World", -1, "UTF-8", "en-US", NULL, NULL, NULL);
+
+  g_print("JNI_Onload5 called for locale %s. converted: %s. G_DEBUG: %s\n", locale, text, getenv("G_DEBUG"));
+
 
   java_vm = vm;
 
@@ -934,18 +954,18 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
         "Could not retrieve JNIEnv");
     return 0;
   }
-  // jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
-  // if (!klass) {
-  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-  //       "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
-  //   return 0;
-  // }
-  // if ((*env)->RegisterNatives (env, klass, native_methods,
-  //         G_N_ELEMENTS (native_methods))) {
-  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-  //       "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
-  //   return 0;
-  // }
+  jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
+  if (!klass) {
+    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+        "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
+    return 0;
+  }
+  if ((*env)->RegisterNatives (env, klass, native_methods,
+          G_N_ELEMENTS (native_methods))) {
+    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+        "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
+    return 0;
+  }
 
   pthread_key_create (&current_jni_env, detach_current_thread);
 

@@ -34,7 +34,8 @@
     <WarningLevel>4</WarningLevel>
     <AndroidLinkMode>None</AndroidLinkMode>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AndroidSupportedAbis>armeabi-v7a</AndroidSupportedAbis>
+    <AndroidSupportedAbis>armeabi-v7a;x86</AndroidSupportedAbis>
+    <MandroidI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,7 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="WebRTC.cs" />
+    <Compile Include="WebRTCJava.cs" />
+    <Compile Include="WebRTCNative.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -75,6 +77,15 @@
     </AndroidNativeLibrary>
     <AndroidNativeLibrary Include="Libraries\armeabi-7a\libgstwebrtc.so">
       <Abi>armeabi-v7a</Abi>
+    </AndroidNativeLibrary>
+    <AndroidNativeLibrary Include="Libraries\android-x86\libc++_shared.so">
+      <Abi>x86</Abi>
+    </AndroidNativeLibrary>
+    <AndroidNativeLibrary Include="Libraries\android-x86\libgstreamer_android.so">
+      <Abi>x86</Abi>
+    </AndroidNativeLibrary>
+    <AndroidNativeLibrary Include="Libraries\android-x86\libgstwebrtc.so">
+      <Abi>x86</Abi>
     </AndroidNativeLibrary>
     <AndroidAsset Include="Assets\fontconfig\fonts\truetype\Ubuntu-R.ttf" />
     <AndroidAsset Include="Assets\fontconfig\fonts.conf" />
