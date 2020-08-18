@@ -10,8 +10,7 @@ To build the Java-based example and deploy it
 =============================================
 
 1) Make sure you have a phone connected to your computer and have the NDK with ADB installed. 
-2) You may need to update the file "build_and_copy_javaapk_to_connected_phone.ps1" to point to the ADB installed on your machine. 
-3) Run the powershell script ./build_and_copy_javaapk_to_connected_phone.ps1. 
+2) Run the powershell script ./build_and_copy_javaapk_to_connected_phone.ps1. 
 4) The application "GStreamer WebRTC" should be built and pushed to your connected device. 
 5) Open a web browser, and type "http://localhost:8080". Verify you are connected to the signalling server. 
 6) Launch the app on the phone and make sure the "URL" field points to your machine (ws://<IP>:8443). Keep the "ID" field as 1. 
