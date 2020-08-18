@@ -26,10 +26,8 @@ namespace Xamarin
 
         private async void Button_Clicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Locale", _locale, "Cancel"); 
-
-            _webRTC.SignallingServer = "ws://192.168.1.28:8443";
-            _webRTC.CallID = "1";
+            _webRTC.SignallingServer = Address.Text;
+            _webRTC.CallID = ID.Text; 
             _webRTC.StartCall(); 
         }
     }

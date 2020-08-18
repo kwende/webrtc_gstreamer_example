@@ -29,10 +29,10 @@ public class WebRTC implements Closeable {
     private static native void nativeClassInit();
     public static void init(Context context) throws Exception {
 
-        android.system.Os.Setenv("G_MESSAGES_DEBUG", "all", true); 
-        android.system.Os.Setenv("G_DEBUG", "fatal-warnings", true);
-        android.system.Os.Setenv("GST_DEBUG", "6", true);
-        android.system.Os.Setenv("GST_DEBUG_NO_COLOR", "1", true);
+        //android.system.Os.Setenv("G_MESSAGES_DEBUG", "all", true); 
+        //android.system.Os.Setenv("G_DEBUG", "fatal-warnings", true);
+        //android.system.Os.Setenv("GST_DEBUG", "6", true);
+        //android.system.Os.Setenv("GST_DEBUG_NO_COLOR", "1", true);
 
         System.loadLibrary("gstreamer_android");
         GStreamer.init(context);

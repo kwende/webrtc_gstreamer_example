@@ -29,15 +29,10 @@ namespace Xamarin.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
 
-            Os.Setenv("G_MESSAGES_DEBUG", "all", true); 
-            Os.Setenv("G_DEBUG", "fatal-warnings", true);
-            Os.Setenv("GST_DEBUG", "6", true);
-            Os.Setenv("GST_DEBUG_NO_COLOR", "1", true); 
-
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.SetTitle("Environment Variable");
-            alert.SetMessage(JavaSystem.Getenv("G_DEBUG"));
-            alert.Create().Show();
+            //Os.Setenv("G_MESSAGES_DEBUG", "all", true); 
+            //Os.Setenv("G_DEBUG", "fatal-warnings", true);
+            //Os.Setenv("GST_DEBUG", "6", true);
+            //Os.Setenv("GST_DEBUG_NO_COLOR", "1", true); 
 
             JavaSystem.LoadLibrary("gstreamer_android");
             GStreamer.Init(ApplicationContext);

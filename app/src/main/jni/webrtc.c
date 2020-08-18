@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <errno.h>
 #include <string.h>
 #include <stdint.h>
 #include <jni.h>
@@ -447,6 +448,8 @@ static void
 on_server_closed (SoupWebsocketConnection * conn G_GNUC_UNUSED,
                   WebRTC * webrtc)
 {
+  //g_print("ERROR: %d\n", errno); // this is printing 11, which makes me think the socket is timing out
+
   webrtc->app_state = SERVER_CLOSED;
   cleanup_and_quit_loop (webrtc, "Server connection closed", 0);
 }
@@ -456,7 +459,7 @@ on_error_message(SoupWebsocketConnection *self,
                GError                  *error,
                gpointer                 user_data)
 {
-  g_print("on_error_message\n");
+  //g_print("on_error_message: %s\n", error->message);
 }
 
 /* One mega message handler for our asynchronous calling mechanism */
@@ -624,6 +627,8 @@ on_server_connected (SoupSession * session, GAsyncResult * res,
 {
   GError *error = NULL;
 
+  //g_print("GOOGLIEBAH\n"); 
+
   webrtc->ws_conn = soup_session_websocket_connect_finish (session, res, &error);
   if (error) {
     g_print("Error! Danger! Danger!"); 
@@ -662,6 +667,8 @@ connect_to_websocket_server_async (WebRTC * webrtc)
   g_print ("ca-certificates %s", ca_certs);
   session = soup_session_new_with_options (SOUP_SESSION_SSL_STRICT, FALSE,
           //                                 SOUP_SESSION_SSL_USE_SYSTEM_CA_FILE, TRUE,
+                                            //SOUP_SESSION_TIMEOUT, 60,
+                                            //SOUP_SESSION_IDLE_TIMEOUT, 60,
                                            SOUP_SESSION_SSL_CA_FILE, ca_certs,
                                            SOUP_SESSION_HTTPS_ALIASES, https_aliases, NULL);
 
