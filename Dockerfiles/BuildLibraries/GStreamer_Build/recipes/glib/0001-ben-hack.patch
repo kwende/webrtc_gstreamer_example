@@ -24,7 +24,7 @@ index 236e52869..cee12aae7 100644
    err->domain = domain;
    err->code = code;
 -  err->message = g_strdup (message);
-+  err->message = g_strdup ("");
++  err->message = g_strdup ("googliebah");
  
    return err;
  }
