@@ -1,0 +1,31 @@
+This setup can do two things: 
+
+1) It can use a docker container to build the Java-based webrtc gstreamer example 
+and deploy to a connected mobile device (arm-based), or 
+2) it can build the APK for the Java-based webrtc gstreamer example
+and copy the requisite .so files to the appropriate directories in the Visual Studio solution to be launched. 
+
+=============================================
+To build the Java-based example and deploy it
+=============================================
+
+1) Make sure you have a phone connected to your computer and have the NDK with ADB installed. 
+2) Run the powershell script ./build_and_copy_javaapk_to_connected_phone.ps1. 
+4) The application "GStreamer WebRTC" should be built and pushed to your connected device. 
+5) Open a web browser, and type "http://localhost:8080". Verify you are connected to the signalling server. 
+6) Launch the app on the phone and make sure the "URL" field points to your machine (ws://<IP>:8443). Keep the "ID" field as 1. 
+7) Tap the start button in the app. 
+8) After a few moments, two-way audio should be rolling. 
+
+================================================
+To build the Xamarin-based example and deploy it
+================================================
+
+1) Make sure you have a phone connected and Visual Studio installed with Xamarin tools. 
+    See here: https://docs.microsoft.com/en-us/xamarin/get-started/installation/windows if you need help. 
+2) Run ./build_and_copy_assets_to_xamarin_project.ps1. This will build the APK that'd normally be copied to the phone, but installed
+    but instead it won't copy the APK, but just grab the built assets (.so files, etc) and copy them the appropriate directories 
+    (webrtc_gstreamer_example\Xamarin\Xamarin.Android\Libraries, for example)
+3) Open your web browser to "http://localhost:8080". Verify you are connected to the signalling server.
+4) Run the solution in Visual Studio (select the "Xamarin.Android" project as start up project and type F5). 
+5) The app with the updated assets should be copied and ran on the phone. 

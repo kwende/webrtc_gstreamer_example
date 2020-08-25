@@ -67,7 +67,7 @@ public class WebRTC extends Activity implements SurfaceHolder.Callback {
             public void onClick(View v) {
                 webRTC.setSignallingServer(URLText.getText().toString());
                 webRTC.setCallID(IDText.getText().toString());
-                webRTC.setSurface(gsv.getHolder().getSurface());
+                //webRTC.setSurface(gsv.getHolder().getSurface());
                 webRTC.callOtherParty();
                 wake_lock.acquire();
             }

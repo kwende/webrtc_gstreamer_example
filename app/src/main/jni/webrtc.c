@@ -18,13 +18,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <errno.h>
 #include <string.h>
 #include <stdint.h>
 #include <jni.h>
 #include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-
+#include <locale.h>
 #include <gst/video/videooverlay.h>
 
 /* helper library for webrtc things */
@@ -81,6 +82,7 @@ typedef struct _WebRTC
 
 static pthread_key_t current_jni_env;
 static JavaVM *java_vm;
+static WebRTC *webrtc; 
 static jfieldID native_webrtc_field_id;
 
 static gboolean
@@ -446,8 +448,18 @@ static void
 on_server_closed (SoupWebsocketConnection * conn G_GNUC_UNUSED,
                   WebRTC * webrtc)
 {
+  //g_print("ERROR: %d\n", errno); // this is printing 11, which makes me think the socket is timing out
+
   webrtc->app_state = SERVER_CLOSED;
   cleanup_and_quit_loop (webrtc, "Server connection closed", 0);
+}
+
+static void
+on_error_message(SoupWebsocketConnection *self,
+               GError                  *error,
+               gpointer                 user_data)
+{
+  //g_print("on_error_message: %s\n", error->message);
 }
 
 /* One mega message handler for our asynchronous calling mechanism */
@@ -455,6 +467,8 @@ static void
 on_server_message (SoupWebsocketConnection * conn, SoupWebsocketDataType type,
                    GBytes * message, WebRTC * webrtc)
 {
+  g_print("on_server_message entered.");
+
   gsize size;
   gchar *text, *data;
 
@@ -613,8 +627,11 @@ on_server_connected (SoupSession * session, GAsyncResult * res,
 {
   GError *error = NULL;
 
+  //g_print("GOOGLIEBAH\n"); 
+
   webrtc->ws_conn = soup_session_websocket_connect_finish (session, res, &error);
   if (error) {
+    g_print("Error! Danger! Danger!"); 
     cleanup_and_quit_loop (webrtc, error->message, SERVER_CONNECTION_ERROR);
     g_error_free (error);
     return;
@@ -627,6 +644,7 @@ on_server_connected (SoupSession * session, GAsyncResult * res,
 
   g_signal_connect (webrtc->ws_conn, "closed", G_CALLBACK (on_server_closed), webrtc);
   g_signal_connect (webrtc->ws_conn, "message", G_CALLBACK (on_server_message), webrtc);
+  g_signal_connect (webrtc->ws_conn, "error", G_CALLBACK (on_error_message), webrtc);
 
   /* Register with the server so it knows about us and can accept commands */
   register_with_server (webrtc);
@@ -649,6 +667,8 @@ connect_to_websocket_server_async (WebRTC * webrtc)
   g_print ("ca-certificates %s", ca_certs);
   session = soup_session_new_with_options (SOUP_SESSION_SSL_STRICT, FALSE,
           //                                 SOUP_SESSION_SSL_USE_SYSTEM_CA_FILE, TRUE,
+                                            //SOUP_SESSION_TIMEOUT, 60,
+                                            //SOUP_SESSION_IDLE_TIMEOUT, 60,
                                            SOUP_SESSION_SSL_CA_FILE, ca_certs,
                                            SOUP_SESSION_HTTPS_ALIASES, https_aliases, NULL);
 
@@ -658,7 +678,7 @@ connect_to_websocket_server_async (WebRTC * webrtc)
 
   message = soup_message_new (SOUP_METHOD_GET, webrtc->signalling_server);
 
-  g_print ("Connecting to server...\n");
+  g_print ("Connecting to server...for message at %d to signalling server %s\n", message, webrtc->signalling_server);
 
   /* Once connected, we will register */
   soup_session_websocket_connect_async (session, message, NULL, NULL, NULL,
@@ -717,7 +737,7 @@ get_jni_env (void)
 static void
 native_end_call (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
 
   if (!webrtc)
     return;
@@ -746,6 +766,7 @@ _unlock_mutex (GMutex * m)
 static gpointer
 _call_thread (WebRTC * webrtc)
 {
+  g_print("GOOGLIEBAH: _call_thread entered.");
   GMainContext *context = NULL;
   JNIEnv *env = attach_current_thread();
 
@@ -765,32 +786,43 @@ _call_thread (WebRTC * webrtc)
   return NULL;
 }
 
-static void
+void
 native_call_other_party(JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  g_print("native_call_other_party entered"); 
 
   if (!webrtc)
+  {
+    g_print("webrtc is null.");
     return;
+  }
 
   if (webrtc->thread)
+  {
+    g_print("call already going, need to end."); 
     native_end_call (env, thiz);
+  }
 
   GST_INFO("calling other party");
+  g_print("calling other party...");
 
   webrtc->thread = g_thread_new("webrtc", (GThreadFunc) _call_thread, webrtc);
   g_mutex_lock (&webrtc->lock);
   while (!webrtc->loop)
     g_cond_wait (&webrtc->cond, &webrtc->lock);
   g_mutex_unlock (&webrtc->lock);
+
+  g_print("native_call_other_party exited");
 }
 
-static void
+void
 native_new (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = g_new0 (WebRTC, 1);
+  //WebRTC *webrtc = g_new0 (WebRTC, 1);
+  webrtc = g_new0(WebRTC, 1);
 
-  SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, webrtc);
+  //SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, webrtc);
   webrtc->java_webrtc = (*env)->NewGlobalRef (env, thiz);
 
   webrtc->signalling_server = g_strdup (DEFAULT_SIGNALLING_SERVER);
@@ -799,10 +831,10 @@ native_new (JNIEnv * env, jobject thiz)
   g_cond_init (&webrtc->cond);
 }
 
-static void
+void
 native_free (JNIEnv * env, jobject thiz)
 {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
 
   if (!webrtc)
     return;
@@ -816,10 +848,11 @@ native_free (JNIEnv * env, jobject thiz)
   g_free (webrtc->peer_id);
   g_free (webrtc->signalling_server);
   g_free (webrtc);
-  SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, NULL);
+  //SET_CUSTOM_DATA (env, thiz, native_webrtc_field_id, NULL);
+  webrtc = NULL; 
 }
 
-static void
+void
 native_class_init (JNIEnv * env, jclass klass)
 {
   native_webrtc_field_id =
@@ -836,10 +869,10 @@ native_class_init (JNIEnv * env, jclass klass)
   //gst_debug_set_threshold_from_string ("gl*:7", FALSE);
 }
 
-static void
+void
 native_set_surface (JNIEnv * env, jobject thiz, jobject surface)
 {
-  WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   ANativeWindow *new_native_window;
 
   if (!webrtc)
@@ -858,9 +891,9 @@ native_set_surface (JNIEnv * env, jobject thiz, jobject surface)
     gst_video_overlay_set_window_handle (GST_VIDEO_OVERLAY (webrtc->video_sink), (guintptr) new_native_window);
 }
 
-static void
+void
 native_set_signalling_server (JNIEnv * env, jobject thiz, jstring server) {
-  WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc= GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   const gchar *s;
 
   if (!webrtc)
@@ -873,9 +906,9 @@ native_set_signalling_server (JNIEnv * env, jobject thiz, jstring server) {
   (*env)->ReleaseStringUTFChars(env, server, s);
 }
 
-static void
+void
 native_set_call_id(JNIEnv * env, jobject thiz, jstring peer_id) {
-  WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
+  //WebRTC *webrtc = GET_CUSTOM_DATA (env, thiz, native_webrtc_field_id);
   const gchar *s;
 
   if (!webrtc)
@@ -910,8 +943,16 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
 {
   JNIEnv *env = NULL;
 
-      setenv("GST_DEBUG", "6", 1);
-    setenv("GST_DEBUG_NO_COLOR", "1", 1);
+  GST_DEBUG_CATEGORY_INIT (debug_category, "debug_category",
+                            0, "This is my very own");
+
+  //setlocale(LC_CTYPE, "en_US");
+  char* locale = setlocale(LC_CTYPE, NULL); 
+
+  char *text = g_convert("Hello World", -1, "UTF-8", "en-US", NULL, NULL, NULL);
+
+  g_print("JNI_Onload5 called for locale %s. converted: %s. G_DEBUG: %s\n", locale, text, getenv("G_DEBUG"));
+
 
   java_vm = vm;
 

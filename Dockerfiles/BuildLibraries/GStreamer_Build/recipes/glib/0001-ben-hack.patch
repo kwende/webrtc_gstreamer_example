@@ -1,0 +1,33 @@
+From 42c7e450d49fa3019db20ac3d9e129a2f869fd8a Mon Sep 17 00:00:00 2001
+From: Ben Rush <brush@ocuvera.onmicrosoft.com>
+Date: Mon, 24 Aug 2020 14:40:00 -0500
+Subject: [PATCH 14/14] glib error patch
+
+---
+ glib/gerror.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/glib/gerror.c b/glib/gerror.c
+index 236e52869..cee12aae7 100644
+--- a/glib/gerror.c
++++ b/glib/gerror.c
+@@ -467,14 +467,14 @@ g_error_new_literal (GQuark         domain,
+ {
+   GError* err;
+ 
+-  g_return_val_if_fail (message != NULL, NULL);
++  //g_return_val_if_fail (message != NULL, NULL);
+   g_return_val_if_fail (domain != 0, NULL);
+ 
+   err = g_slice_new (GError);
+ 
+   err->domain = domain;
+   err->code = code;
+-  err->message = g_strdup (message);
++  err->message = g_strdup ("googliebah");
+ 
+   return err;
+ }
+-- 
+2.21.0.windows.1
+
