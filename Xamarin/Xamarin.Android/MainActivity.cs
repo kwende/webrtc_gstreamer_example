@@ -11,6 +11,8 @@ using Org.Freedesktop.Gstreamer;
 using Xamarin.Forms;
 using Xamarin.Contracts;
 using Android.Systems;
+using System.IO;
+using Android.Content.Res;
 
 namespace Xamarin.Droid
 {
@@ -41,6 +43,13 @@ namespace Xamarin.Droid
 
             //_webRtc = new WebRTCNative(ApplicationContext);
             _webRtc = new WebRTCJava(ApplicationContext);
+
+            //string content = "";
+            //AssetManager assets = this.Assets;
+            //using (StreamReader sr = new StreamReader(assets.Open("ssl/certs/ca-certificates.crt")))
+            //{
+            //    content = sr.ReadToEnd();
+            //}
 
             LoadApplication(new App(_webRtc, "")); 
         }
