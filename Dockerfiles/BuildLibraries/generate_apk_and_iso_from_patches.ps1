@@ -20,7 +20,7 @@ docker exec gstreamer-1.16-build-environment bash -c "cp -R /cerbero/build/dist/
 
 # spin up the android development environment, mount the build files as /usr/local/gstreamer
 docker run -d --rm -v gstreamer_android_binaries:/usr/local/gstreamer -v ${PWD}/Output:/output -v ${PWD}/../..:/android --name android-build-environment brush/android-build-environment
-docker exec android-build-environment bash -c "cd /android && gradle build && cp -R /android/app/build/intermediates/transforms/stripDebugSymbol/debug/0/lib/. /output && cp -R /android/app/build/outputs/apk/debug/app-debug.apk /output"
+docker exec android-build-environment bash -c "cd /android && gradle clean assembleDebug; && cp -R /android/app/build/intermediates/transforms/stripDebugSymbol/debug/0/lib/. /output && cp -R /android/app/build/outputs/apk/debug/app-debug.apk /output"
 
 # clean up
 docker stop gstreamer-1.16-build-environment

@@ -13,6 +13,9 @@ using Xamarin.Contracts;
 using Android.Systems;
 using System.IO;
 using Android.Content.Res;
+using Android.Support.V4.Content;
+using Android;
+using Android.Support.V4.App;
 
 namespace Xamarin.Droid
 {
@@ -30,6 +33,11 @@ namespace Xamarin.Droid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.RecordAudio) != (int)Permission.Granted)
+            {
+                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.RecordAudio }, 0);
+            }
 
             //Os.Setenv("G_MESSAGES_DEBUG", "all", true); 
             //Os.Setenv("G_DEBUG", "fatal-warnings", true);
