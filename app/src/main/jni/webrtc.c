@@ -305,7 +305,7 @@ static void
 on_negotiation_needed (GstElement * element, WebRTC * webrtc)
 {
   GstPromise *promise;
-
+  g_print("GOOGLIEBAH: on_negotation_needed\n"); 
   webrtc->app_state = PEER_CALL_NEGOTIATING;
   promise = gst_promise_new_with_change_func (on_offer_created, webrtc, NULL);;
   g_signal_emit_by_name (webrtc->webrtcbin, "create-offer", NULL, promise);
