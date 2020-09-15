@@ -855,16 +855,16 @@ native_free (JNIEnv * env, jobject thiz)
 void
 native_class_init (JNIEnv * env, jclass klass)
 {
-  native_webrtc_field_id =
-      (*env)->GetFieldID (env, klass, "native_webrtc", "J");
+  // native_webrtc_field_id =
+  //     (*env)->GetFieldID (env, klass, "native_webrtc", "J");
 
-  if (!native_webrtc_field_id) {
-    static const gchar *message =
-        "The calling class does not implement all necessary interface methods";
-    jclass exception_class = (*env)->FindClass (env, "java/lang/Exception");
-    __android_log_print (ANDROID_LOG_ERROR, "GstPlayer", "%s", message);
-    (*env)->ThrowNew (env, exception_class, message);
-  }
+  // if (!native_webrtc_field_id) {
+  //   static const gchar *message =
+  //       "The calling class does not implement all necessary interface methods";
+  //   jclass exception_class = (*env)->FindClass (env, "java/lang/Exception");
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstPlayer", "%s", message);
+  //   (*env)->ThrowNew (env, exception_class, message);
+  // }
 
   //gst_debug_set_threshold_from_string ("gl*:7", FALSE);
 }
@@ -943,36 +943,36 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
 {
   JNIEnv *env = NULL;
 
-  GST_DEBUG_CATEGORY_INIT (debug_category, "debug_category",
-                            0, "This is my very own");
+  // GST_DEBUG_CATEGORY_INIT (debug_category, "debug_category",
+  //                           0, "This is my very own");
 
-  //setlocale(LC_CTYPE, "en_US");
-  char* locale = setlocale(LC_CTYPE, NULL); 
+  // setlocale(LC_CTYPE, "en_US");
+  // char* locale = setlocale(LC_CTYPE, NULL); 
 
-  char *text = g_convert("Hello World", -1, "UTF-8", "en-US", NULL, NULL, NULL);
+  // char *text = g_convert("Hello World", -1, "UTF-8", "en-US", NULL, NULL, NULL);
 
-  g_print("JNI_Onload5 called for locale %s. converted: %s. G_DEBUG: %s\n", locale, text, getenv("G_DEBUG"));
+  // g_print("JNI_Onload5 called for locale %s. converted: %s. G_DEBUG: %s\n", locale, text, getenv("G_DEBUG"));
 
 
   java_vm = vm;
 
-  if ((*vm)->GetEnv (vm, (void **) &env, JNI_VERSION_1_4) != JNI_OK) {
-    __android_log_print (ANDROID_LOG_ERROR, "GstPlayer",
-        "Could not retrieve JNIEnv");
-    return 0;
-  }
-  jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
-  if (!klass) {
-    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-        "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
-    return 0;
-  }
-  if ((*env)->RegisterNatives (env, klass, native_methods,
-          G_N_ELEMENTS (native_methods))) {
-    __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
-        "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
-    return 0;
-  }
+  // if ((*vm)->GetEnv (vm, (void **) &env, JNI_VERSION_1_4) != JNI_OK) {
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstPlayer",
+  //       "Could not retrieve JNIEnv");
+  //   return 0;
+  // }
+  // jclass klass = (*env)->FindClass (env, "org/freedesktop/gstreamer/WebRTC");
+  // if (!klass) {
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+  //       "Could not retrieve class org.freedesktop.gstreamer.WebRTC");
+  //   return 0;
+  // }
+  // if ((*env)->RegisterNatives (env, klass, native_methods,
+  //         G_N_ELEMENTS (native_methods))) {
+  //   __android_log_print (ANDROID_LOG_ERROR, "GstWebRTC",
+  //       "Could not register native methods for org.freedesktop.gstreamer.WebRTC");
+  //   return 0;
+  // }
 
   pthread_key_create (&current_jni_env, detach_current_thread);
 

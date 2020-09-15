@@ -49,8 +49,8 @@ namespace Xamarin.Droid
 
             JavaSystem.LoadLibrary("gstwebrtc");
 
-            //_webRtc = new WebRTCNative(ApplicationContext);
-            _webRtc = new WebRTCJava(ApplicationContext);
+            _webRtc = new WebRTCNative(ApplicationContext);
+            //_webRtc = new WebRTCJava(ApplicationContext);
 
             //string content = "";
             //AssetManager assets = this.Assets;

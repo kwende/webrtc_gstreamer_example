@@ -116,10 +116,6 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\WebRTCBinder\WebRTCBinder.csproj">
-      <Project>{efe58b21-9360-4f2f-bf2f-30e012e15e2c}</Project>
-      <Name>WebRTCBinder</Name>
-    </ProjectReference>
     <ProjectReference Include="..\GStreamerJarBinder\GStreamerJarBinder.csproj">
       <Project>{511b1989-43a6-4d8b-b0e4-d3dce1e86564}</Project>
       <Name>GStreamerJarBinder</Name>
