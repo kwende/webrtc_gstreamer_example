@@ -28,7 +28,7 @@ docker exec android-build-environment bash -c "cd /android && gradle clean assem
 #docker volume rm gstreamer_android_binaries
 
 
-Start-Sleep 2
-cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\armeabi-v7a\*.so ..\..\Xamarin\Xamarin.Android\Libraries\armeabi-7a
-cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\x86\*.so ..\..\Xamarin\Xamarin.Android\Libraries\android-x86
+#Start-Sleep 2
+#cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\armeabi-v7a\*.so ..\..\Xamarin\Xamarin.Android\Libraries\armeabi-7a
+#cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\x86\*.so ..\..\Xamarin\Xamarin.Android\Libraries\android-x86
 #docker-compose up

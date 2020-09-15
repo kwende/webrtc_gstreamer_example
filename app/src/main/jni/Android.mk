@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := gstwebrtc
-LOCAL_SRC_FILES := webrtc.c dummy.cpp
+LOCAL_SRC_FILES := dummy.cpp webrtc.cpp GStreamerEventLoop.cpp GstreamerChat.cpp WebSocketClient.cpp
 
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_LDLIBS := -llog -landroid
