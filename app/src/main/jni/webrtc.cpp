@@ -27,7 +27,7 @@ void* Start(char* ip, int port, char* clientName, char* sessionName)
     client->Connect(); 
 
 	logger->LogInfo("Starting the GLib event loop."); 
-	GStreamerEventLoop::StartLoop(logger); 
+	GStreamerEventLoop::StartLoop(); 
 	logger->LogInfo("Broke out of the GLib event loop. Quitting."); 
 
 	return (void*)client; 

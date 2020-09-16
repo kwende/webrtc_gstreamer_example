@@ -5,8 +5,6 @@
 #define GST_USE_UNSTABLE_API
 #include <gst/webrtc/webrtc.h>
 
-#include "ILogger.h"
-
 namespace Ocuvera
 {
     namespace Chat
@@ -16,7 +14,7 @@ namespace Ocuvera
             class GStreamerEventLoop
             {
             public:
-                static void StartLoop(ILogger* logger);
+                static void StartLoop();
                 static void StopLoop();
             private:
                 static GMainLoop* _loop;

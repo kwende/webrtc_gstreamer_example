@@ -15,9 +15,13 @@
 #include <functional>
 #include <string>
 
-#define RTP_CAPS_OPUS "application/x-rtp,media=audio,encoding-name=OPUS,payload=100"
-#define RTP_CAPS_VP8 "application/x-rtp,media=video,encoding-name=VP8,payload=101"
-
+#ifdef _WIN32
+    #define RTP_CAPS_OPUS "application/x-rtp,media=audio,encoding-name=OPUS,payload=100"
+    #define RTP_CAPS_VP8 "application/x-rtp,media=video,encoding-name=VP8,payload=101"
+#else
+    #define RTP_CAPS_OPUS "application/x-rtp,media=audio,encoding-name=OPUS,payload=100"
+    #define RTP_CAPS_VP8 "application/x-rtp,media=video,encoding-name=VP8,payload=101"
+#endif
 
 #include <ILogger.h>
 
@@ -43,13 +47,13 @@ namespace Ocuvera
 
                 static void onPipelineNeedsNegotiation(GstElement* element, gpointer user_data);
                 static void onPipelineNeedsICECandidates(GstElement* webrtc G_GNUC_UNUSED, guint mlineindex,
-                    gchar* candidate, gpointer user_data G_GNUC_UNUSED);
-                static void onPipelineReceviedStream(GstElement* webrtc, GstPad* pad, gpointer user_data); 
+                    gchar* candidate, gpointer user_data);
+                static void onPipelineReceviedStream(GstElement* webrtc, GstPad* pad, gpointer user_data);
                 static void onPipelineHasCreatedOffer(GstPromise* promise, gpointer user_data);
                 void sendSessionDescriptionToPeers(GstWebRTCSessionDescription* desc);
                 static void onPipelineRemoteDescriptionSet(GstPromise* promise, gpointer user_data);
                 static void onPipelineHasCreatedAnswer(GstPromise* promise, gpointer user_data);
-                static void onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* pad, gpointer user_data); 
+                static void onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* pad, gpointer user_data);
             };
         }
     }

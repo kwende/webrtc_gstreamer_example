@@ -9,11 +9,11 @@ using namespace Ocuvera::Chat::ChatShared;
 
 GStreamerChat::GStreamerChat(std::function<void(std::string)> callback, ILogger* logger)
 {
-    _logger = logger; 
-    _pipeline = nullptr; 
-    _webRtcElement = nullptr; 
+    _logger = logger;
+    _pipeline = nullptr;
+    _webRtcElement = nullptr;
     _negotiateType = NegotiateType::Unknown;
-    _onSendMessageCallback = callback; 
+    _onSendMessageCallback = callback;
 }
 
 /// <summary>
@@ -54,9 +54,8 @@ void GStreamerChat::onPipelineHasCreatedAnswer(GstPromise* promise, gpointer use
 /// <param name="user_data"></param>
 void GStreamerChat::onPipelineRemoteDescriptionSet(GstPromise* promise, gpointer user_data)
 {
-    
     GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
-    dis->_logger->LogInfo("GStreamerChat::onRemoteDescriptionSet\n"); 
+    dis->_logger->LogInfo("GStreamerChat::onRemoteDescriptionSet\n");
     gst_promise_unref(promise);
     promise = gst_promise_new_with_change_func(onPipelineHasCreatedAnswer, dis, NULL);
     g_signal_emit_by_name(dis->_webRtcElement, "create-answer", NULL, promise);
@@ -69,7 +68,7 @@ void GStreamerChat::onPipelineRemoteDescriptionSet(GstPromise* promise, gpointer
 /// <param name="sdp"></param>
 void GStreamerChat::HandleOfferFromPeer(GstSDPMessage* sdp)
 {
-    _logger->LogInfo("GStreamerChat::HandleOfferFromPeer\n"); 
+    _logger->LogInfo("GStreamerChat::HandleOfferFromPeer\n");
     GstWebRTCSessionDescription* offer = NULL;
     GstPromise* promise;
 
@@ -89,7 +88,7 @@ void GStreamerChat::HandleOfferFromPeer(GstSDPMessage* sdp)
 /// <param name="desc"></param>
 void GStreamerChat::sendSessionDescriptionToPeers(GstWebRTCSessionDescription* desc)
 {
-    _logger->LogInfo("GStreamerChat::sendSessionDescriptionToPeers\n"); 
+    _logger->LogInfo("GStreamerChat::sendSessionDescriptionToPeers\n");
     gchar* text;
     JsonObject* msg, * sdp;
 
@@ -129,14 +128,14 @@ void GStreamerChat::sendSessionDescriptionToPeers(GstWebRTCSessionDescription* d
     json_object_unref(msg);
 
     // invoke the callback. 
-    _onSendMessageCallback(std::string(text)); 
+    _onSendMessageCallback(std::string(text));
 
     g_free(text);
 }
 
 void GStreamerChat::HandleAnswerFromPeer(GstSDPMessage* sdp)
 {
-    _logger->LogInfo("GStreamerChat::HandleAnswerFromPeer\n"); 
+    _logger->LogInfo("GStreamerChat::HandleAnswerFromPeer\n");
     GstWebRTCSessionDescription* answer = gst_webrtc_session_description_new(GST_WEBRTC_SDP_TYPE_ANSWER,
         sdp);
     g_assert_nonnull(answer);
@@ -157,9 +156,8 @@ void GStreamerChat::HandleAnswerFromPeer(GstSDPMessage* sdp)
 /// <param name="user_data">The this pointer</param>
 void GStreamerChat::onPipelineHasCreatedOffer(GstPromise* promise, gpointer user_data)
 {
-    
     GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
-    dis->_logger->LogInfo("GStreamerChat::onOfferCreated\n"); 
+    dis->_logger->LogInfo("GStreamerChat::onOfferCreated\n");
     GstWebRTCSessionDescription* offer = NULL;
     const GstStructure* reply;
 
@@ -182,31 +180,30 @@ void GStreamerChat::onPipelineNeedsNegotiation(GstElement* element, gpointer use
 {
     GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
     dis->_logger->LogInfo("GStreamerChat::onNegotitationNeeded.\n");
+
     switch (dis->_negotiateType)
     {
     case NegotiateType::Initiates:
-        {
-            dis->_logger->LogInfo("GStreamerChat::onNegotitationNeeded: Initiates\n");
-            GstPromise* promise;
-            // register my callback (see below)
-            promise = gst_promise_new_with_change_func(onPipelineHasCreatedOffer, user_data, NULL);
-            // tell the GStreamer pipeline to build an offer of its capabilities and generate
-            // a promise that can be transmitted to the peers via SDP and the signalling server
-            // by invoking onOfferCrated
-            g_signal_emit_by_name(dis->_webRtcElement, "create-offer", NULL, promise);
-        }
-        break; 
+    {
+        g_print("\tI'm starting the negotiation process.\n");
+        GstPromise* promise;
+        // register my callback (see below)
+        promise = gst_promise_new_with_change_func(onPipelineHasCreatedOffer, user_data, NULL);
+        // tell the GStreamer pipeline to build an offer of its capabilities and generate
+        // a promise that can be transmitted to the peers via SDP and the signalling server
+        // by invoking onOfferCrated
+        g_signal_emit_by_name(dis->_webRtcElement, "create-offer", NULL, promise);
+    }
+    break;
     case NegotiateType::Waits:
-        dis->_logger->LogInfo("GStreamerChat::onNegotitationNeeded: Waits\n");
-        break; 
-    default:
-        g_print("\tUnknown negotiation type.");
-        break; 
+        g_print("\tI'm awaiting negotation from the peer\n");
+        break;
     }
 }
 
 void GStreamerChat::HandleICECandidate(std::string ice, int sdpmLineIndex)
 {
+    _logger->LogInfo("GStreamerChat:HandleICECandidate");
     /* Add ice candidate sent by remote peer */
     g_signal_emit_by_name(this->_webRtcElement, "add-ice-candidate", sdpmLineIndex, ice.c_str());
 }
@@ -222,7 +219,7 @@ void GStreamerChat::onPipelineNeedsICECandidates(GstElement* webrtc G_GNUC_UNUSE
 
     if (strstr(candidate, "TCP") == NULL)
     {
-        //dis->_logger->LogInfo("\tStarting with %s\n", candidate);
+        g_print("\tStarting with %s\n", candidate);
         GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
 
 
@@ -266,7 +263,7 @@ void GStreamerChat::onPipelineNeedsICECandidates(GstElement* webrtc G_GNUC_UNUSE
 void GStreamerChat::onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* pad, gpointer user_data)
 {
     GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
-    dis->_logger->LogInfo("GStreamerChat::onPipelineDecodebinPadAdded\n"); 
+    dis->_logger->LogInfo("GStreamerChat::onPipelineDecodebinPadAdded\n");
     GstCaps* caps;
     const gchar* name;
 
@@ -279,13 +276,13 @@ void GStreamerChat::onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* p
     caps = gst_pad_get_current_caps(pad);
     name = gst_structure_get_name(gst_caps_get_structure(caps, 0));
 
-    if (g_str_has_prefix(name, "video")) 
+    if (g_str_has_prefix(name, "video"))
     {
         //handle_media_stream(pad, pipe, "videoconvert", "autovideosink");
     }
-    else if (g_str_has_prefix(name, "audio")) 
+    else if (g_str_has_prefix(name, "audio"))
     {
-        //_logger->LogInfo("\tGStreamerChat::onPipelineDecodebinAdded: handling audio.\n"); 
+        g_print("\tGStreamerChat::onPipelineDecodebinAdded: handling audio.\n");
         GstPad* qpad;
         GstElement* q, * conv, * resample, * sink;
         GstPadLinkReturn ret;
@@ -313,7 +310,7 @@ void GStreamerChat::onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* p
         ret = gst_pad_link(pad, qpad);
         g_assert_cmphex(ret, == , GST_PAD_LINK_OK);
     }
-    else 
+    else
     {
         g_printerr("Unknown pad %s, ignoring", GST_PAD_NAME(pad));
     }
@@ -327,44 +324,48 @@ void GStreamerChat::onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* p
 /// <param name="pipe"></param>
 void GStreamerChat::onPipelineReceviedStream(GstElement* webrtc, GstPad* pad, gpointer user_data)
 {
-    //_logger->LogInfo("GStreamerChat::onPipelineReceivedStream\n");
     GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
-    dis->_logger->LogInfo("GStreamerChat:onPipelineReceviedStream\n"); 
+    dis->_logger->LogInfo("GStreamerChat::onPipelineReceivedStream\n");
 
-    GstElement *decodebin;
+    GstElement* decodebin;
+    GstPad* sinkpad;
 
-    if (GST_PAD_DIRECTION (pad) != GST_PAD_SRC)
+    if (GST_PAD_DIRECTION(pad) != GST_PAD_SRC)
         return;
 
-    decodebin = gst_element_factory_make ("decodebin", NULL);
-    g_signal_connect (decodebin, "pad-added",
-                        G_CALLBACK (onPipelineDecodebinPadAdded), user_data);
-    gst_bin_add (GST_BIN (dis->_pipeline), decodebin);
-    gst_element_sync_state_with_parent (decodebin);
-    gst_element_link (webrtc, decodebin);
+    decodebin = gst_element_factory_make("decodebin", NULL);
+    g_signal_connect(decodebin, "pad-added",
+        G_CALLBACK(onPipelineDecodebinPadAdded), dis);
+    gst_bin_add(GST_BIN(dis->_pipeline), decodebin);
+    gst_element_sync_state_with_parent(decodebin);
+
+    sinkpad = gst_element_get_static_pad(decodebin, "sink");
+    gst_pad_link(pad, sinkpad);
+    gst_object_unref(sinkpad);
 }
 
 void GStreamerChat::StartProcessing(NegotiateType negotiateType)
 {
-    _logger->LogInfo("GStreamerChat::StartProcess\n"); 
-    _negotiateType = negotiateType; 
+    _logger->LogInfo("GStreamerChat::StartProcess\n");
+    _negotiateType = negotiateType;
 
     GstStateChangeReturn ret;
     GError* error = NULL;
 
 #ifdef DEBUG_AUDIO_SOURCE
     _pipeline = gst_parse_launch("webrtcbin bundle-policy=max-bundle name=sendrecv "
-            "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
-            "queue ! " RTP_CAPS_OPUS "97 ! sendrecv. ", &error);
+        "audiotestsrc is-live=true wave=red-noise ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
+        "queue ! " RTP_CAPS_OPUS "97 ! sendrecv. ", &error);
+#elif _WIN32 
+    _pipeline = gst_parse_launch("webrtcbin bundle-policy=max-bundle name=sendrecv "
+        "autoaudiosrc ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
+        "queue ! " RTP_CAPS_OPUS "97 ! sendrecv. ", &error);
 #else
-    // _pipeline = gst_parse_launch("webrtcbin bundle-policy=max-bundle name=sendrecv "
-    //     "autoaudiosrc ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
-    //     "queue ! " RTP_CAPS_OPUS "97 ! sendrecv. ", &error);
 
-    _pipeline =  gst_parse_launch("webrtcbin name=sendrecv "
-              //"audiotestsrc ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
-              "openslessrc ! queue ! audioconvert ! audioresample ! audiorate ! queue ! opusenc ! rtpopuspay ! "
-              "queue ! " RTP_CAPS_OPUS " ! sendrecv. ", &error);
+    _pipeline = gst_parse_launch("webrtcbin name=sendrecv "
+        //"audiotestsrc ! audioconvert ! audioresample ! queue ! opusenc ! rtpopuspay ! "
+        "openslessrc ! queue ! audioconvert ! audioresample ! audiorate ! queue ! opusenc ! rtpopuspay ! "
+        "queue ! " RTP_CAPS_OPUS " ! sendrecv. ", &error);
 #endif
 
     if (!error)
@@ -402,7 +403,6 @@ void GStreamerChat::StartProcessing(NegotiateType negotiateType)
     }
     else
     {
-        _logger->LogInfo("\tGStreamerChat::StartProcessing: failed to start processing"); 
-        _logger->LogError(error->message); 
+        g_print("\tGStreamerChat::StartProcessing: failed to start processing due to %s\n", error->message);
     }
 }

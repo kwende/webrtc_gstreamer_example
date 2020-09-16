@@ -35,7 +35,7 @@ GSTREAMER_PLUGINS_CORE_CUSTOM := coreelements app audioconvert audiorate audiore
 GSTREAMER_PLUGINS_CODECS_CUSTOM := videoparsersbad vpx opus audioparsers opusparse androidmedia
 GSTREAMER_PLUGINS_NET_CUSTOM := tcp rtsp rtp rtpmanager udp srtp webrtc dtls nice
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE_CUSTOM) $(GSTREAMER_PLUGINS_CODECS_CUSTOM) $(GSTREAMER_PLUGINS_NET_CUSTOM) \
-                             $(GSTREAMER_PLUGINS_ENCODING)  \
+                             $(GSTREAMER_PLUGINS_ENCODING) $(GSTREAMER_PLUGINS_PLAYBACK) $(GSTREAMER_PLUGINS_CODECS) \
                              $(GSTREAMER_PLUGINS_SYS)
 
 GSTREAMER_EXTRA_DEPS      := gstreamer-webrtc-1.0 gstreamer-sdp-1.0 gstreamer-video-1.0 libsoup-2.4 json-glib-1.0 glib-2.0

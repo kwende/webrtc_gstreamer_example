@@ -12,11 +12,11 @@
 # cd ..
 
 # create a volume to hold the binaries
-#docker volume create gstreamer_android_binaries
+#ocker volume create gstreamer_android_binaries
 
 # spin up the gstreamer build environment to copy over build files
 #docker run -d --rm -v gstreamer_android_binaries:/output --name gstreamer-1.16-build-environment brush/gstreamer-1.16-build-environment
-#docker exec gstreamer-1.16-build-environment bash -c "cp -R /cerbero/build/dist/android_universal/. /output"
+docker exec gstreamer-1.16-build-environment bash -c "cp -R /cerbero/build/dist/android_universal/. /output"
 
 # spin up the android development environment, mount the build files as /usr/local/gstreamer
 #docker run -d --rm -v gstreamer_android_binaries:/usr/local/gstreamer -v ${PWD}/Output:/output -v ${PWD}/../..:/android --name android-build-environment brush/android-build-environment
@@ -27,8 +27,6 @@ docker exec android-build-environment bash -c "cd /android && gradle clean assem
 #docker stop android-build-environment
 #docker volume rm gstreamer_android_binaries
 
-
 #Start-Sleep 2
-#cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\armeabi-v7a\*.so ..\..\Xamarin\Xamarin.Android\Libraries\armeabi-7a
-#cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\x86\*.so ..\..\Xamarin\Xamarin.Android\Libraries\android-x86
+cp ..\..\app\build\intermediates\transforms\stripDebugSymbol\debug\0\lib\armeabi-v7a\*.so D:\repos\ComputerVision\DontPanic.CV.Tracking\Ocuvera.Mobile.Droid\Libraries\armeabi
 #docker-compose up

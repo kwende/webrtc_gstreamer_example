@@ -1,20 +1,15 @@
 #include "GStreamerEventLoop.h"
-#include "ILogger.h"
 
 using namespace Ocuvera::Chat::ChatShared;
 
-void GStreamerEventLoop::StartLoop(ILogger* logger)
+void GStreamerEventLoop::StartLoop()
 {
     gst_init(NULL, NULL);
-    logger->LogInfo("GStreamerEventLoop::StartLoop: Intialized the GStreamer runtime."); 
 
     if (_loop == nullptr)
     {
-        logger->LogInfo("GStreamerEventLoop::StartLoop: There is no event loop, creating one..."); 
         _loop = g_main_loop_new(NULL, FALSE);
-        logger->LogInfo("GStreamerEventLoop::StartLoop: created the loop."); 
         g_main_loop_run(_loop);
-        logger->LogInfo("GStreamerEventLoop::StartLoop: breaking out of the loop."); 
     }
 }
 
