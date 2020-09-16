@@ -324,24 +324,24 @@ void GStreamerChat::onPipelineDecodebinPadAdded(GstElement* decodebin, GstPad* p
 /// <param name="pipe"></param>
 void GStreamerChat::onPipelineReceviedStream(GstElement* webrtc, GstPad* pad, gpointer user_data)
 {
-    GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
-    dis->_logger->LogInfo("GStreamerChat::onPipelineReceivedStream\n");
+    // GStreamerChat* dis = reinterpret_cast<GStreamerChat*>(user_data);
+    // dis->_logger->LogInfo("GStreamerChat::onPipelineReceivedStream\n");
 
-    GstElement* decodebin;
-    GstPad* sinkpad;
+    // GstElement* decodebin;
+    // GstPad* sinkpad;
 
-    if (GST_PAD_DIRECTION(pad) != GST_PAD_SRC)
-        return;
+    // if (GST_PAD_DIRECTION(pad) != GST_PAD_SRC)
+    //     return;
 
-    decodebin = gst_element_factory_make("decodebin", NULL);
-    g_signal_connect(decodebin, "pad-added",
-        G_CALLBACK(onPipelineDecodebinPadAdded), dis);
-    gst_bin_add(GST_BIN(dis->_pipeline), decodebin);
-    gst_element_sync_state_with_parent(decodebin);
+    // decodebin = gst_element_factory_make("decodebin", NULL);
+    // g_signal_connect(decodebin, "pad-added",
+    //     G_CALLBACK(onPipelineDecodebinPadAdded), dis);
+    // gst_bin_add(GST_BIN(dis->_pipeline), decodebin);
+    // gst_element_sync_state_with_parent(decodebin);
 
-    sinkpad = gst_element_get_static_pad(decodebin, "sink");
-    gst_pad_link(pad, sinkpad);
-    gst_object_unref(sinkpad);
+    // sinkpad = gst_element_get_static_pad(decodebin, "sink");
+    // gst_pad_link(pad, sinkpad);
+    // gst_object_unref(sinkpad);
 }
 
 void GStreamerChat::StartProcessing(NegotiateType negotiateType)
